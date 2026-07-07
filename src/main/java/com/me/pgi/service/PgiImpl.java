@@ -197,7 +197,20 @@ public class PgiImpl {
 	public List<PgiPerformanceApprover> getAllApproveData(String initYear) {
 //		return null;
 //		return pgiApproverRepository.findAll();
-		return pgiApproverRepository.findByApproverTypeAndInityear("S",initYear);
+		List<PgiPerformanceApprover> obj=pgiApproverRepository.findByApproverTypeAndInityear("S",initYear);
+		QueryResult qrObj = nativeRepository.executeQueries("select * from spgicategories_4");
+		
+		for(int i=0;i<obj.size();i++) {
+			for(int j=0;j<qrObj.getRowValue().size();j++) {
+				if(obj.get(i).getStateCode() == qrObj.getRowValue().get(j).get("statecode")) {
+					obj.get(i).setGrade(String.valueOf(qrObj.getRowValue().get(j).get("grade")));
+					obj.get(i).setScore(String.valueOf(qrObj.getRowValue().get(j).get("gtotal")));
+				}
+			}
+		}
+		
+		
+		return obj;
 	}
 	
 	public List<PgiPerformanceApprover> getAllDistrictApproveData(Integer stateCode, String approverType,String inityear) {

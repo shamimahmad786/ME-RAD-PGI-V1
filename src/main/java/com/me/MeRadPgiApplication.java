@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 public class MeRadPgiApplication extends SpringBootServletInitializer{
 
 	public static void main(String[] args) {
-		SpringApplication.run		(MeRadPgiApplication.class, args);
+		SpringApplication.run(MeRadPgiApplication.class, args);
 	}
 	
 	@Bean

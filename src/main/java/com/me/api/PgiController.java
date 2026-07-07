@@ -125,11 +125,13 @@ public class PgiController {
 	public StaticReportBean getStateReview(@RequestBody String year) throws JsonProcessingException {	
 		System.out.println("in get state review called");
 		StaticReportBean sobj=new StaticReportBean();
-		QueryResult qrObj = nativeRepository.executeQueries("select ms.state_id,ms.state_name,per.status \r\n"
+		QueryResult qrObj = nativeRepository.executeQueries("select ms.state_id,ms.state_name,per.status, spg.gtotal as score,spg.grade \r\n"
 				+ "from mst_state ms left join pgi_re_perform_approver per\r\n"
 				+ "on ms.state_id = per.state_code and  per.approver_type='S' and per.inityear='"+year+"' \r\n"
+				+ " left join spgicategories_4 spg on  per.state_code=spg.statecode "
+				+ " where ms.inityear='2024' \r\n"  
 				+ "group by ms.state_id,ms.state_name,\r\n"
-				+ "	per.status order by ms.state_name ; ");
+				+ "	per.status,spg.gtotal,spg.grade order by ms.state_name ; ");
 //				+ "order by  psq.domainid , psq.questionid ");
 		sobj.setColumnName(qrObj.getColumnName());
 		sobj.setRowValue(qrObj.getRowValue());
@@ -144,8 +146,9 @@ public class PgiController {
 	public StaticReportBean getStateDistrictCount(@RequestBody String yearDist) throws JsonProcessingException {	
 		System.out.println("yearDist--->"+yearDist);
 		StaticReportBean sobj=new StaticReportBean();
-		QueryResult qrObj = nativeRepository.executeQueries("select ms.state_name, ms.state_id ,count(md.state_id) from mst_state ms left join mst_district md  on ms.state_id =md.state_id and md.inityear='"+yearDist+"' group by md.state_id,ms.state_name,ms.state_id order by ms.state_name");
+		QueryResult qrObj = nativeRepository.executeQueries("select ms.state_name, ms.state_id ,count(md.state_id) from mst_state ms left join mst_district md  on ms.state_id =md.state_id and md.inityear='"+yearDist+"' where ms.inityear='"+yearDist.split("-")[0]+"' group by md.state_id,ms.state_name,ms.state_id order by ms.state_name");
 //				+ "order by  psq.domainid , psq.questionid ");
+		System.out.println("qrObj.getRowValue()---"+qrObj.getRowValue());
 		sobj.setColumnName(qrObj.getColumnName());
 		sobj.setRowValue(qrObj.getRowValue());
 		sobj.setColumnDataType(qrObj.getColumnDataType());
@@ -159,7 +162,7 @@ public class PgiController {
 	public StaticReportBean getDistrictReview(@RequestBody String yearDist) throws JsonProcessingException {	
 		System.out.println("yearDist--->"+yearDist);
 		StaticReportBean sobj=new StaticReportBean();
-		QueryResult qrObj = nativeRepository.executeQueries("select ms.state_name ,md.status,count(md.status) from mst_state ms left join pgi_re_perform_approver md on ms.state_id =md.state_code and md.inityear='"+yearDist+"' and md.approver_type='D' group by md.status,ms.state_name order by ms.state_name ");
+		QueryResult qrObj = nativeRepository.executeQueries("select ms.state_name ,md.status,count(md.status) from mst_state ms left join pgi_re_perform_approver md on ms.state_id =md.state_code and md.inityear='"+yearDist+"' and md.approver_type='D' where ms.inityear='"+yearDist+"' group by md.status,ms.state_name order by ms.state_name ");
 //				+ "order by  psq.domainid , psq.questionid ");
 		sobj.setColumnName(qrObj.getColumnName());
 		sobj.setRowValue(qrObj.getRowValue());
@@ -267,7 +270,8 @@ public class PgiController {
 	@RequestMapping(value = "/getAllApproveData", method = RequestMethod.POST)
 	public List<PgiPerformanceApprover> getAllApproveData(@RequestBody String inityear) throws JsonProcessingException {		
 //		System.out.println("get all approve data--->"+stateCode);
-		return pgiImpl.getAllApproveData(inityear);
+		List<PgiPerformanceApprover> obj= pgiImpl.getAllApproveData(inityear);
+		return obj;
 	}
 	
 	@RequestMapping(value = "/getAllDistrictApproveData", method = RequestMethod.POST)
@@ -440,6 +444,8 @@ public class PgiController {
 			year="2022-23";
 		}else if(data.getYear().equalsIgnoreCase("2023")) {
 			year="2023-24";
+		}else if(data.getYear().equalsIgnoreCase("2024")) {
+			year="2024-25";
 		}
 		
 		

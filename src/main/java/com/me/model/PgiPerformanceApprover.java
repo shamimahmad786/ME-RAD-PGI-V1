@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,4 +43,9 @@ public class PgiPerformanceApprover {
 	private String approverRemarks;
 	@Column(name = "inityear")
 	private String inityear;
+	@Transient
+	private String grade;
+	@Transient
+	private String score;
+	
 }
